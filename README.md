@@ -1,5 +1,9 @@
 # Banking Dashboard Developer Test
 
+#@ NEW! - Api Documentation
+
+https://mock-ica.aquarela.win/api
+
 ## Overview
 
 Welcome to our developer test! This project aims to evaluate your skills in creating a banking dashboard with admin access. You'll be working with a mock Banking as a Service (BaaS) API located at [https://mock-ica.aquarela.win/](https://mock-ica.aquarela.win/).
