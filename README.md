@@ -2,7 +2,7 @@
 
 ## Overview
 
-Welcome to our developer test! This project aims to evaluate your skills in creating a banking dashboard with admin access. You'll be working with a mock Banking as a Service (BaaS) API located at [https://mocktest-october.justtestingthis.com](https://mock-ica.aquarela.win/).
+Welcome to our developer test! This project aims to evaluate your skills in creating a banking dashboard with admin access. You'll be working with a mock Banking as a Service (BaaS) API located at [https://mock-ica.aquarela.win/](https://mock-ica.aquarela.win/).
 
 ## Objective
 
@@ -55,7 +55,7 @@ Your choice, including free options like Supabase
 
 ## API Documentation
 
-The mock BaaS API is available at [https://mocktest-october.justtestingthis.com](https://mock-ica.aquarela.win/). Here's an overview of the available endpoints and their usage:
+The mock BaaS API is available at  [https://mock-ica.aquarela.win/](https://mock-ica.aquarela.win/).  Here's an overview of the available endpoints and their usage:
 
 ### Important Notes
 - You must create a tenant before accessing other routes.
