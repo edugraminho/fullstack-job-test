@@ -99,6 +99,9 @@ All account management routes require the following header:
 #### Get Account Details
 - **GET** `/account/:id`
 
+#### Get Account by Document
+- **GET** `/account/document/:document`
+
 #### Get Account Statement
 - **GET** `/account/:id/statement`
 
@@ -123,6 +126,9 @@ All transaction routes require the following headers:
   }
   ```
 
+#### PIX Find Key
+- **GET** `/transaction/pix/:pixKey`
+  
 #### PIX Transfer
 - **POST** `/transaction/pix/:accountId/pay`
 - **Body**:
@@ -130,6 +136,7 @@ All transaction routes require the following headers:
   {
     "amount": 200,
     "pixKey": "pix@example.com",
+    "description": "its my description"
     "e2eId": "end_to_end_id"
   }
   ```
