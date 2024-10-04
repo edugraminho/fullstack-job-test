@@ -60,6 +60,7 @@ The mock BaaS API is available at https://mocktest-october.justtestingthis.com. 
 ### Important Notes
 - You must create a tenant before accessing other routes.
 - The JWT secret is: `758603a3-cb1c-4d3f-b4b4-aa8975236894`
+- The pix key is: `pix@mock.icabank.com.br`
 
 ### Authentication
 
