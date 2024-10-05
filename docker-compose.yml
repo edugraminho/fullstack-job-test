@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  app:
+    build: 
+      dockerfile: ./app.Dockerfile
+      context: ./
+    volumes:
+      - .:/app
+    ports:
+      - 8000:8000
+    environment:
+      API_MOCK_URL: "${API_MOCK_URL}"
+      CLIENT_ID: "${CLIENT_ID}"
+      CLIENT_SECRET: "${CLIENT_SECRET}"
+      TOKEN_EXPIRATION_SECONDS: "${TOKEN_EXPIRATION_SECONDS}"
+    depends_on:
+      - redis
+    restart: always
+
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
+    restart: always
+
+volumes:
+  pgdata:
