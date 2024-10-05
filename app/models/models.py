@@ -20,7 +20,6 @@ class TEDTransfer(BaseModel):
 
 
 class PIXTransfer(BaseModel):
-    account_id: str = Field(..., alias="accountId")
     amount: float
     pix_key: str = Field(..., alias="pixKey")
     e2e_id: str = Field(..., alias="e2eId")

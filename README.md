@@ -1,167 +1,309 @@
 # Banking Dashboard Developer Test
 
-## Overview
+## Architectural Design
 
-Welcome to our developer test! This project aims to evaluate your skills in creating a banking dashboard with admin access. You'll be working with a mock Banking as a Service (BaaS) API located at [https://mock-ica.aquarela.win/](https://mock-ica.aquarela.win/).
+The architectural design is based on best practices for organizing FastAPI applications in a modular and scalable structure, but adapted for smaller projects and without databases.
 
-## Objective
+## FastAPI
 
-Your task is to create a banking dashboard that allows administrators to:
+FastAPI is the framework used to build the API. The architecture is asynchronous, which optimizes performance in I/O operations, such as external calls to other APIs. The API offers endpoints organized into modules, which makes it easy to add new features.
 
-1. View and create bank accounts
-2. View account statements
-3. See a summary of open accounts
-4. View the total balance of all accounts (simulating the total value in the database)
+## Redis
 
-Additionally, as a bonus feature, you can create a user interface for account holders to:
+Redis is used as an in-memory cache layer for temporary storage of authentication tokens such as JWT tokens, with predefined expiration times, increasing security.
 
-1. Log in to their bank account
-2. Perform financial operations
-3. View their account statement and balance
+## Docker
 
-## Evaluation Criteria
+Docker is used to containerize the entire application, ensuring portability and consistency between development and production environments. The project also uses Docker Compose to manage multiple containers, allowing the FastAPI and Redis applications to run in isolated containers.
 
-We will assess your solution based on:
+# API Documentation
 
-1. Security
-2. Usability
-3. Performance
-4. Scalability
+### Requirements
 
-If you're a full-stack developer, we'll evaluate both your backend and frontend implementations. If you specialize in one area, we'll place more emphasis on your expertise.
+`Docker installed`
+`Docker Compose installed`
 
-Careful consideration of caching and security measures is crucial for both frontend and backend components.
+### How to Run the Project:
 
-## Technology Stack
+1- Clone the repository.
 
-### Frontend
-- React (with Next.js, Remix, or similar)
-- Svelte
+2- Configure environment variables. Create a .env file in the project root, copying env.example and adding the credentials
 
-Recommended libraries:
-- Tailwind CSS for styling
-- shadcn for UI components
-- Framer Motion for animations
+3- Run `docker-compose up` to start the application and Redis.
+Access the API and automatic documentation at `http://localhost:8000/docs`.
 
-### Backend
-- Python
-- TypeScript (Node.js, Bun, or Deno)
-
-Recommended framework:
-- NestJS
-
-### Database
-Your choice, including free options like Supabase
-
-## API Documentation
-
-The mock BaaS API is available at  [https://mock-ica.aquarela.win/](https://mock-ica.aquarela.win/).  Here's an overview of the available endpoints and their usage:
-
-### Important Notes
-- You must create a tenant before accessing other routes.
-- The JWT secret is: `758603a3-cb1c-4d3f-b4b4-aa8975236894`
-- The pix key is: `pix@mock.icabank.com.br`
-
-### Authentication
-
-#### Create Tenant
-- **POST** `/tenant`
-- **Headers**: `X-Mock: true`
-- **Response**: Returns tenant details including `clientId` and `clientSecret`
+### Authentication Routes
 
 #### Login
+
 - **POST** `/auth/login`
-- **Body**: 
-  ```json
-  {
-    "clientId": "your_client_id",
-    "clientSecret": "your_client_secret"
-  }
-  ```
-- **Response**: Returns an `access_token`
 
-### Account Management
+This route creates a tenant, logs in to the Banking as a Service (BaaS) API, and stores the access token in Redis.
 
-All account management routes require the following header:
-- `Authorization: Bearer your_access_token`
+**Success Response**:
+
+```json
+{
+  "message": "Login successful",
+  "access_token": "<access_token>"
+}
+```
+
+### Account Routes
 
 #### Create Account
-- **POST** `/account`
-- **Body**:
-  ```json
-  {
-    "accountType": "PERSONAL" | "BUSINESS",
-    "name": "Account Holder Name",
-    "document": "Document Number"
-  }
-  ```
+
+- **POST** `/accounts/`
+
+This route allows the creation of a new account.
+
+**Request Body:**
+
+```json
+{
+  "accountType": "PERSONAL" | "BUSINESS",
+  "name": "string",
+  "document": "string"
+}
+```
+
+**Success Response**:
+
+```json
+{
+  "accountId": "string",
+  "tenantId": "string",
+  "accountType": "PERSONAL",
+  "name": "string",
+  "document": "string",
+  "status": "PENDING_KYC",
+  "balance": 0,
+  "branch": "0001",
+  "number": "string",
+  "createdAt": "2024-10-05T14:21:03.960Z",
+  "updatedAt": "2024-10-05T14:21:03.960Z"
+}
+```
 
 #### Get Account Details
-- **GET** `/account/:id`
+
+**GET** `/accounts/{account_id}`
+
+This route allows retrieving the details of a specific account.
+
+Path Parameters:
+
+account_id: UUID of the account
+**Success Response**:
+
+```json
+{
+  "id": "string",
+  "tenantId": "string",
+  "accountType": "PERSONAL",
+  "name": "string",
+  "document": "string",
+  "status": "ACTIVE",
+  "balance": 1000.0,
+  "branch": "0001",
+  "number": "42069",
+  "createdAt": "2024-10-05T14:21:03.960Z",
+  "updatedAt": "2024-10-05T14:21:03.960Z"
+}
+```
 
 #### Get Account Statement
-- **GET** `/account/:id/statement`
 
-### Transactions
+**GET** `/accounts/{account_id}/statement`
 
-All transaction routes require the following headers:
-- `Authorization: Bearer your_access_token`
-- `X-Payer-Id: payer_document_number`
+This route allows retrieving the statement of a specific account.
+
+Path Parameters:
+
+account_id: UUID of the account
+**Success Response**:
+
+```json
+{
+  "accountId": "string",
+  "balance": "float",
+  "transactions": [
+    {
+      "id": "string",
+      "accountId": "string",
+      "type": "INTERNAL",
+      "amount": 2677,
+      "description": "string",
+      "recipientName": "string",
+      "recipientDocument": "string",
+      "recipientBank": "string",
+      "recipientBranch": "string",
+      "recipientAccount": "string",
+      "billetCode": null,
+      "pixKey": null,
+      "e2eId": null,
+      "createdAt": "2024-10-05T15:39:35.000Z"
+    }
+  ]
+}
+```
+
+### Transaction Routes
 
 #### TED Transfer
+
 - **POST** `/transaction/ted`
-- **Body**:
-  ```json
-  {
-    "accountId": "source_account_id",
-    "amount": 500,
-    "recipientName": "Recipient Name",
-    "recipientDocument": "Recipient Document",
-    "recipientBank": "Bank Code",
-    "recipientBranch": "Branch Number",
-    "recipientAccount": "Account Number"
-  }
-  ```
+
+This route allows performing a TED transfer.
+
+**Request Body:**
+
+```json
+{
+  "accountId": "string",
+  "amount": 500,
+  "recipientName": "string",
+  "recipientDocument": "string",
+  "recipientBank": "string",
+  "recipientBranch": "string",
+  "recipientAccount": "string",
+  "description": "string"
+}
+```
+
+**Success Response**:
+
+```json
+{
+  "message": "TED Transfer Successful"
+}
+```
 
 #### PIX Transfer
-- **POST** `/transaction/pix/:accountId/pay`
-- **Body**:
-  ```json
-  {
-    "amount": 200,
-    "pixKey": "pix@example.com",
-    "e2eId": "end_to_end_id"
-  }
-  ```
 
-#### Pay Billet
+- **POST** `/transaction/pix/{account_id}/pay`
+
+This route allows performing a PIX transfer.
+
+Path Parameters:
+
+account_id: UUID of the account
+**Request Body:**
+
+```json
+{
+  "amount": 200,
+  "pixKey": "pix@example.com",
+  "e2eId": "end_to_end_id",
+  "description": "string"
+}
+```
+
+**Success Response**:
+
+```json
+{
+  "message": "PIX Transfer Successful"
+}
+```
+
+#### Billet Payment
+
 - **POST** `/transaction/billet`
-- **Body**:
-  ```json
-  {
-    "accountId": "source_account_id",
-    "amount": 150,
-    "billetCode": "billet_code",
-    "dueDate": "YYYY-MM-DD"
-  }
-  ```
+
+This route allows paying a billet (bank slip).
+
+**Request Body:**
+
+```json
+{
+  "accountId": "string",
+  "amount": 100.0,
+  "billetCode": "111",
+  "dueDate": "2024-10-25"
+}
+```
+
+**Success Response**:
+
+```json
+{
+  "accountId": "string",
+  "type": "string",
+  "amount": 100,
+  "billetCode": "string",
+  "account": {
+    "id": "string",
+    "tenantId": "string",
+    "accountType": "PERSONAL",
+    "name": "string",
+    "document": "string",
+    "status": "ACTIVE",
+    "balance": 7193,
+    "branch": "string",
+    "number": "string",
+    "createdAt": "2024-10-05T15:07:35.000Z",
+    "updatedAt": "2024-10-05T15:13:36.000Z"
+  },
+  "description": null,
+  "recipientName": null,
+  "recipientDocument": null,
+  "recipientBank": null,
+  "recipientBranch": null,
+  "recipientAccount": null,
+  "pixKey": null,
+  "e2eId": null,
+  "id": "string",
+  "createdAt": "2024-10-05T15:32:32.000Z"
+}
+```
 
 #### Internal Transfer
+
 - **POST** `/transaction/internal`
-- **Body**:
-  ```json
-  {
-    "amount": 100,
-    "sourceAccountId": "source_account_id",
-    "targetAccountId": "target_account_id"
-  }
-  ```
 
-## Submission Guidelines
+This route allows performing an internal transfer between accounts.
 
-1. Create a GitHub repository for your project.
-2. Include clear instructions on how to set up and run your solution.
-3. Provide any necessary documentation for your code and architecture decisions.
-4. Submit the link to your repository when you're ready for review.
+**Request Body:**
 
-Good luck, and we look forward to seeing your innovative solutions!
+```json
+{
+  "sourceAccountId": "string",
+  "targetAccountId": "string",
+  "amount": 100.0
+}
+```
+
+**Success Response**:
+
+```json
+{
+  "accountId": "string",
+  "type": "INTERNAL",
+  "amount": -100,
+  "recipientBank": "string",
+  "recipientBranch": "string",
+  "recipientAccount": "string",
+  "account": {
+    "id": "string",
+    "tenantId": "string",
+    "accountType": "PERSONAL",
+    "name": "string",
+    "document": "string",
+    "status": "ACTIVE",
+    "balance": 7293,
+    "branch": "string",
+    "number": "string",
+    "createdAt": "2024-10-05T15:07:35.000Z",
+    "updatedAt": "2024-10-05T15:34:30.000Z"
+  },
+  "description": null,
+  "recipientName": null,
+  "recipientDocument": null,
+  "billetCode": null,
+  "pixKey": null,
+  "e2eId": null,
+  "id": "string",
+  "createdAt": "2024-10-05T15:34:33.000Z"
+}
+```
