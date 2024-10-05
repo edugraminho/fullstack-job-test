@@ -27,7 +27,7 @@ async def create_account(
 
 
 @router.get("/accounts/open")
-async def get_open_accounts(db: Session = Depends(get_db)):
+async def get_open_accounts(token: str = Depends(get_access_token), db: Session = Depends(get_db)):
     open_accounts = db.query(Account).all()
 
     if not open_accounts:
@@ -37,7 +37,7 @@ async def get_open_accounts(db: Session = Depends(get_db)):
 
 
 @router.get("/accounts/total-balance")
-async def get_total_balance(db: Session = Depends(get_db)):
+async def get_total_balance(token: str = Depends(get_access_token), db: Session = Depends(get_db)):
     total_balance = db.query(func.sum(Account.balance)).scalar()
 
     if total_balance is None:
