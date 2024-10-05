@@ -13,8 +13,10 @@ services:
       CLIENT_ID: "${CLIENT_ID}"
       CLIENT_SECRET: "${CLIENT_SECRET}"
       TOKEN_EXPIRATION_SECONDS: "${TOKEN_EXPIRATION_SECONDS}"
+      DATABASE_URL: "${DATABASE_URL}"
     depends_on:
       - redis
+      - db
     restart: always
 
   redis:
@@ -22,6 +24,19 @@ services:
     ports:
       - 6379:6379
     restart: always
+
+  db:
+    image: postgres
+    environment:
+      POSTGRES_DB: "${POSTGRES_DB}"
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    command: ["postgres", "-c", "log_statement=all"]
 
 volumes:
   pgdata:

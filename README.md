@@ -16,6 +16,10 @@ Redis is used as an in-memory cache layer for temporary storage of authenticatio
 
 Docker is used to containerize the entire application, ensuring portability and consistency between development and production environments. The project also uses Docker Compose to manage multiple containers, allowing the FastAPI and Redis applications to run in isolated containers.
 
+## PostgreSQL
+
+PostgreSQL is used as the relational database to store account data. SQLAlchemy, an ORM (Object Relational Mapper), is used to interact with the database, allowing the application to easily perform CRUD operations on account data.
+
 # API Documentation
 
 ### Requirements
@@ -145,6 +149,55 @@ account_id: UUID of the account
       "createdAt": "2024-10-05T15:39:35.000Z"
     }
   ]
+}
+```
+
+#### Get Open Accounts (IN DATABASE)
+
+**GET** `/accounts/open`
+This route retrieves all the open accounts stored in the PostgreSQL database.
+
+Success Response:
+
+```json
+{
+  "open_accounts": [
+    {
+      "id": "string",
+      "tenantId": "string",
+      "accountType": "PERSONAL",
+      "name": "string",
+      "document": "string",
+      "status": "ACTIVE",
+      "balance": 1000.0,
+      "branch": "0001",
+      "number": "42069",
+      "createdAt": "2024-10-05T14:21:03.960Z",
+      "updatedAt": "2024-10-05T14:21:03.960Z"
+    }
+  ]
+}
+```
+
+#### Get Total Balance of All Accounts (IN DATABASE)
+
+**GET** `/accounts/total-balance`
+This route retrieves the total balance across all accounts stored in the PostgreSQL database.
+
+Success Response:
+
+```json
+{
+  "total_balance": 1000000
+}
+```
+
+If there are no accounts, it returns:
+
+```json
+{
+  "message": "No accounts found",
+  "total_balance": 0
 }
 ```
 

@@ -1,5 +1,26 @@
+import uuid
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import Optional
+from sqlalchemy import Column, String, Float, DateTime
+from sqlalchemy.dialects.postgresql import UUID
+from datetime import datetime
+from .base import Base
+
+
+class Account(Base):
+    __tablename__ = "accounts"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(as_uuid=True), nullable=False)
+    account_type = Column(String, nullable=False)
+    name = Column(String, nullable=False)
+    document = Column(String, nullable=False)
+    status = Column(String, nullable=False)
+    balance = Column(Float, nullable=False, default=0.0)
+    branch = Column(String, nullable=False)
+    number = Column(String, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
 class AccountCreate(BaseModel):

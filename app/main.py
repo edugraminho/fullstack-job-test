@@ -2,7 +2,6 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.endpoints import accounts, transactions, auth
 
-
 app = FastAPI()
 
 app.add_middleware(
