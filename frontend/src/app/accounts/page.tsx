@@ -15,6 +15,7 @@ export default function Accounts() {
     useState<AccountStatement | null>(null);
   const [statementMessage, setStatementMessage] = useState<string>("");
   const [totalBalance, setTotalBalance] = useState<number | null>(null);
+  const [openAccounts, setOpenAccounts] = useState<Account[]>([]);
 
   interface AccountStatement {
     accountId: string;
@@ -35,6 +36,20 @@ export default function Accounts() {
       e2eId?: string | null;
       createdAt: string;
     }[];
+  }
+
+  interface Account {
+    id: string;
+    tenantId: string;
+    account_type: "PERSONAL" | "BUSINESS";
+    name: string;
+    document: string;
+    status: string;
+    balance: number;
+    branch: string;
+    number: string;
+    createdAt: string;
+    updatedAt: string;
   }
 
   const login = async () => {
@@ -184,6 +199,29 @@ export default function Accounts() {
     }
   }, [token]);
 
+  const fetchOpenAccounts = async () => {
+    if (token) {
+      try {
+        setLoading(true);
+        const response = await fetch("http://localhost:8000/accounts/open", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setOpenAccounts(data.open_accounts || []);
+        } else {
+          console.error("Failed to fetch accounts summary");
+        }
+      } catch (error) {
+        console.error("Error fetching accounts:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen p-8">
       <h1 className="text-2xl font-bold mb-8">Accounts</h1>
@@ -318,6 +356,46 @@ export default function Accounts() {
           <p className="text-lg">Total Balance: ${totalBalance}.00</p>
         ) : (
           <p className="text-lg">Loading total balance...</p>
+        )}
+      </div>
+
+      <div className="mt-12">
+        <button
+          onClick={fetchOpenAccounts}
+          className="bg-green-500 text-white p-2 mb-4"
+        >
+          View Open Accounts Summary
+        </button>
+      </div>
+      <div>
+        <h2 className="text-xl font-bold mb-4 mt-4">Open Accounts Summary</h2>
+        {loading ? (
+          <p>Loading accounts...</p>
+        ) : openAccounts.length > 0 ? (
+          <ul>
+            {openAccounts.map((account) => (
+              <li className="mt-4" key={account.id}>
+                <p>
+                  <strong>Name:</strong> {account.name}
+                </p>
+                <p>
+                  <strong>Account Type:</strong> {account.account_type}
+                </p>
+                <p>
+                  <strong>Balance:</strong> ${account.balance}.00
+                </p>
+                <p>
+                  <strong>Document:</strong> {account.document}
+                </p>
+                <p>
+                  <strong>Status:</strong> {account.status}
+                </p>
+                <hr />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No open accounts found</p>
         )}
       </div>
     </div>
